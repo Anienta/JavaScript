@@ -151,6 +151,37 @@ const updateUI = function (acc) {
   calcDisplaySummary(acc);
 };
 
+const startLogoutTimer = function ()
+  {
+    const tick = function() {
+    const min = String(Math.trunc(time / 60)).padStart(2,0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    //in each call print remaining time
+    labelTimer.textContent = `${min}:${sec}`;
+
+    //when time out, stop and log out
+    if (time === 0) {
+      clearInterval(timer);
+      welcoming();
+
+      //UI visible
+      containerApp.style.opacity = 0;
+    }
+
+    //decrese 1s
+    time --;
+  }
+  //set time to 5 min
+  let time = 30;
+
+  //call the timer every second
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
+
 //Welcomig
 
 const welcoming = function (acc) {
@@ -179,6 +210,10 @@ btnLogin.addEventListener('click', function(e) {
     //removing cursor
     inputLoginPin.blur();
 
+    //set Timer
+    if (timer) clearInterval(timer);
+    timer = startLogoutTimer();
+
     updateUI(currentAccount);
 
     //Create current date and time
@@ -196,10 +231,11 @@ btnLogin.addEventListener('click', function(e) {
     labelDate.textContent = new Intl.DateTimeFormat(currentAccount.locale, options).format(now);
   }});
 
+  let timer;
   // FAKE always logged in //
-  currentAccount = account1;
-  updateUI(currentAccount);
-  containerApp.style.opacity = 100;
+  // currentAccount = account1;
+  // updateUI(currentAccount);
+  // containerApp.style.opacity = 100;
 
 
   //SET Time Parameters
@@ -223,7 +259,8 @@ btnTransfer.addEventListener('click', function (e) {
   inputTransferAmount.value = inputTransferTo.value = '';
 
   if (amount > 0 && receiverAcc &&currentAccount.balance >= amount && receiverAcc?.username !== currentAccount.username) {
-
+    setTimeout(() => {
+      
     //doing the transfer
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
@@ -232,7 +269,11 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movementsDates.push(new Date().toISOString());
     receiverAcc.movementsDates.push(new Date().toISOString());
 
-    updateUI(currentAccount);
+    updateUI(currentAccount)}, 1500);;
+
+    //reset timer
+    clearInterval(timer);
+    timer = startLogoutTimer();
   }
 });
 
@@ -258,13 +299,14 @@ btnClose.addEventListener('click', function (e) {
       inputCloseUsername.value = inputClosePin.value = '';
 });
 
-//Getting a loan
+//Getting a LOAN
 btnLoan.addEventListener('click', function(e) {
   e.preventDefault();
 
   const amount = Math.floor(inputLoanAmount.value);
 
   if(amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    setTimeout(function () {
 
     //add movement and date
     currentAccount.movements.push(amount);
@@ -272,11 +314,16 @@ btnLoan.addEventListener('click', function(e) {
 
     //Update UI
     updateUI(currentAccount);
+    }, 2000);
+
+    //reset timer
+      clearInterval(timer);
+      timer = startLogoutTimer();
   }
 
   //Clear input field
   inputLoanAmount.value = '';
-})
+});
 
 //SORTING button
 let sorted = false;
@@ -289,118 +336,118 @@ btnSort.addEventListener('click', function (e) {
 /////////////////////////////////////////////////
 // LECTURES
 
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
+// const currencies = new Map([
+//   ['USD', 'United States dollar'],
+//   ['EUR', 'Euro'],
+//   ['GBP', 'Pound sterling'],
+// ]);
 
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+// const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
-/////////////////////////////////////////////////
-//CHALLENGE #1
+// /////////////////////////////////////////////////
+// //CHALLENGE #1
 
-const dogsJulia = [2, 5, 1, 7, 4];
-const dogsKate = [3, 2, 4, 9, 1];
+// const dogsJulia = [2, 5, 1, 7, 4];
+// const dogsKate = [3, 2, 4, 9, 1];
 
- const checkDogs = function (julia, kate) {
-  const juliaNew = julia.slice();
-  juliaNew.splice(0, 1);
-  juliaNew.splice(-2);
-  const allDogs = juliaNew.concat(kate);
-  allDogs.forEach(function (dogAge, i) {
-    dogAge > 3 ? console.log(`Dog number ${i + 1} is an adult, and is ${dogAge} years old`) : console.log(`Dog number ${i + 1} is still a puppy🐕`);
-  });
- }
+//  const checkDogs = function (julia, kate) {
+//   const juliaNew = julia.slice();
+//   juliaNew.splice(0, 1);
+//   juliaNew.splice(-2);
+//   const allDogs = juliaNew.concat(kate);
+//   allDogs.forEach(function (dogAge, i) {
+//     dogAge > 3 ? console.log(`Dog number ${i + 1} is an adult, and is ${dogAge} years old`) : console.log(`Dog number ${i + 1} is still a puppy🐕`);
+//   });
+//  }
 
-// checkDogs(dogsJulia, dogsKate);
+// // checkDogs(dogsJulia, dogsKate);
 
-////////////////////
-//CHALLENGE #2
+// ////////////////////
+// //CHALLENGE #2
 
-const calcAverageHumanAge = function (ages) {
-  const humanAge = ages.map(age => age <= 2 ? 2 * age : age *4 + 16);
-  const adults = humanAge.filter(humanAge => humanAge >= 18);
-  const average = adults.reduce((acc, adults) => acc + adults, 0) / adults.length;
+// const calcAverageHumanAge = function (ages) {
+//   const humanAge = ages.map(age => age <= 2 ? 2 * age : age *4 + 16);
+//   const adults = humanAge.filter(humanAge => humanAge >= 18);
+//   const average = adults.reduce((acc, adults) => acc + adults, 0) / adults.length;
   
-  // console.log(average);;
-};
-// calcAverageHumanAge([5,2,4,1,15,8,3]);
+//   // console.log(average);;
+// };
+// // calcAverageHumanAge([5,2,4,1,15,8,3]);
 
-//////////////////////
-//CHALLENGE #3
+// //////////////////////
+// //CHALLENGE #3
 
-const calcAverageHumanAgeChain = ages =>
-ages.map(age => age <= 2? 2*age : age *4 +16).filter(humanAge => humanAge >= 18).reduce((acc, adults, i, arr) => acc + adults/arr.length, 0);
+// const calcAverageHumanAgeChain = ages =>
+// ages.map(age => age <= 2? 2*age : age *4 +16).filter(humanAge => humanAge >= 18).reduce((acc, adults, i, arr) => acc + adults/arr.length, 0);
 
-const avg1 = calcAverageHumanAgeChain([5,2,4,1,15,8,3]);
-const avg2 = calcAverageHumanAgeChain([16,6,10,5,6,1,4]);
-console.log(avg1, avg2);
+// const avg1 = calcAverageHumanAgeChain([5,2,4,1,15,8,3]);
+// const avg2 = calcAverageHumanAgeChain([16,6,10,5,6,1,4]);
+// console.log(avg1, avg2);
 
-//CHALLENGE
-const x100 = Array.from({length: 100}, () => Math.trunc(Math.random() *6)+1);
+// //CHALLENGE
+// const x100 = Array.from({length: 100}, () => Math.trunc(Math.random() *6)+1);
 
-// console.log(x100);
+// // console.log(x100);
 
-//////////////////
-//CHALLENGE #4
+// //////////////////
+// //CHALLENGE #4
 
-//TEST DATA:
-const dogs = [
-  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
-  { weight: 8, curFood: 200, owners: ['Matilda'] },
-  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
-  { weight: 32, curFood: 340, owners: ['Michael'] }
-];
-//1
-const calcFoodOK = function(dogs) {
-  dogs.forEach(dog => dog.recommendedFood = dog.weight ** 0.75 * 28);
-};
-calcFoodOK(dogs);
-console.log(dogs);
+// //TEST DATA:
+// const dogs = [
+//   { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+//   { weight: 8, curFood: 200, owners: ['Matilda'] },
+//   { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+//   { weight: 32, curFood: 340, owners: ['Michael'] }
+// ];
+// //1
+// const calcFoodOK = function(dogs) {
+//   dogs.forEach(dog => dog.recommendedFood = dog.weight ** 0.75 * 28);
+// };
+// calcFoodOK(dogs);
+// console.log(dogs);
 
-//2
-const dogSarah = function (dogs) {
-  dogs.filter(dogs => dogs.owners.includes('Sarah')).map(dogs => dogs.curFood >  dogs.recommendedFood? console.log("Sarah's dog is eating too much"): console.log("Sarah's dog is eating too little") 
-  );
-};
+// //2
+// const dogSarah = function (dogs) {
+//   dogs.filter(dogs => dogs.owners.includes('Sarah')).map(dogs => dogs.curFood >  dogs.recommendedFood? console.log("Sarah's dog is eating too much"): console.log("Sarah's dog is eating too little") 
+//   );
+// };
 
-dogSarah(dogs);
+// dogSarah(dogs);
 
-//3
-const ownersEatTooMuch = dogs.filter(dogs =>  dogs.curFood > dogs.recommendedFood).flatMap(dogs => dogs.owners);
+// //3
+// const ownersEatTooMuch = dogs.filter(dogs =>  dogs.curFood > dogs.recommendedFood).flatMap(dogs => dogs.owners);
 
-console.log(ownersEatTooMuch);
+// console.log(ownersEatTooMuch);
 
-const ownersEatTooLittle = dogs.filter(dogs =>  dogs.curFood < dogs.recommendedFood).flatMap(dogs => dogs.owners);
+// const ownersEatTooLittle = dogs.filter(dogs =>  dogs.curFood < dogs.recommendedFood).flatMap(dogs => dogs.owners);
 
-console.log(ownersEatTooLittle);
+// console.log(ownersEatTooLittle);
 
-//4
-console.log(`${ownersEatTooMuch.join(" and ")} dogs eat too much.`);
-console.log(`${ownersEatTooLittle.join(" and ")} dogs eat too little.`);
+// //4
+// console.log(`${ownersEatTooMuch.join(" and ")} dogs eat too much.`);
+// console.log(`${ownersEatTooLittle.join(" and ")} dogs eat too little.`);
 
-//5
-console.log(dogs.some(dog => dog.curFood === dog.recommendedFood));
+// //5
+// console.log(dogs.some(dog => dog.curFood === dog.recommendedFood));
 
-//6
-console.log(dogs.includes(dogs.curFood <= 1.1 * dogs.recommendedFood && dogs.curFood >= 0.9 * dogs.recommendedFood));
+// //6
+// console.log(dogs.includes(dogs.curFood <= 1.1 * dogs.recommendedFood && dogs.curFood >= 0.9 * dogs.recommendedFood));
 
-const eatingOK = dog => dog.curFood <= 1.1 * dog.recommendedFood && dog.curFood >= 0.9 * dog.recommendedFood;
-console.log(dogs.some(eatingOK));
+// const eatingOK = dog => dog.curFood <= 1.1 * dog.recommendedFood && dog.curFood >= 0.9 * dog.recommendedFood;
+// console.log(dogs.some(eatingOK));
 
-//7
-const dogsEatingOK = dogs.filter(eatingOK).flatMap(dog => dog.owners);
-console.log(dogsEatingOK);
+// //7
+// const dogsEatingOK = dogs.filter(eatingOK).flatMap(dog => dog.owners);
+// console.log(dogsEatingOK);
 
-//8
-const dogsSorted = dogs.slice().sort((a,b) => a.recommendedFood - b.recommendedFood);
-console.log(dogsSorted);
+// //8
+// const dogsSorted = dogs.slice().sort((a,b) => a.recommendedFood - b.recommendedFood);
+// console.log(dogsSorted);
 
-//Number format experimenting
-const num = 54999616.6;
-const options = {
-  style: 'unit',
-  unit: 'liter',
-};
-console.log(navigator.language, ': ', new Intl.NumberFormat(navigator.language, options).format(num));
+// //Number format experimenting
+// const num = 54999616.6;
+// const options = {
+//   style: 'unit',
+//   unit: 'liter',
+// };
+// console.log(navigator.language, ': ', new Intl.NumberFormat(navigator.language, options).format(num));
